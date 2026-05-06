@@ -180,7 +180,7 @@ namespace EventEase.Controllers
 
                 TempData["SuccessMessage"] = "Booking deleted successfully.";
             }
-
+             
             return RedirectToAction(nameof(Index));
         }
     }
