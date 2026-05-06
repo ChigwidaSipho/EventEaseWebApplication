@@ -178,7 +178,7 @@ namespace EventEase.Controllers
                 _context.Booking.Remove(booking);
                 await _context.SaveChangesAsync(); 
 
-                TempData["SuccessMessage"] = "Booking deleted successfully.";
+                TempData["SuccessMessage"] = "Booking deleted successfully."; 
             }
              
             return RedirectToAction(nameof(Index));
