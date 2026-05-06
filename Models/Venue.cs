@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EventEase.Models
 {
@@ -7,7 +8,6 @@ namespace EventEase.Models
         public int VenueID { get; set; }
 
         [Required]
-
         public string? VenueName { get; set; }
 
         [Required]
@@ -18,5 +18,8 @@ namespace EventEase.Models
         public int Capacity { get; set; }
 
         public string? ImageUrl { get; set; }
+
+        [NotMapped]
+        public IFormFile? ImageFile { get; set; }
     }
 }

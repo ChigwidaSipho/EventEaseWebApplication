@@ -16,7 +16,10 @@ namespace EventEase.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var events = await _context.Event.Include(e => e.Venue).ToListAsync();
+            var events = await _context.Event
+                .Include(e => e.Venue)
+                .ToListAsync();
+
             return View(events);
         }
 
@@ -30,15 +33,17 @@ namespace EventEase.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Event @event)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(@event);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ViewBag.VenueID = new SelectList(_context.Venue, "VenueID", "VenueName", @event.VenueID);
+                return View(@event);
             }
 
-            ViewBag.VenueID = new SelectList(_context.Venue, "VenueID", "VenueName", @event.VenueID);
-            return View(@event);
+            _context.Add(@event);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Event created successfully.";
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Edit(int? id)
@@ -58,14 +63,29 @@ namespace EventEase.Controllers
         {
             if (id != @event.EventID) return NotFound();
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Update(@event);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ViewBag.VenueID = new SelectList(_context.Venue, "VenueID", "VenueName", @event.VenueID);
+                return View(@event);
             }
 
-            ViewBag.VenueID = new SelectList(_context.Venue, "VenueID", "VenueName", @event.VenueID);
+            _context.Update(@event);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Event updated successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var @event = await _context.Event
+                .Include(e => e.Venue)
+                .FirstOrDefaultAsync(e => e.EventID == id);
+
+            if (@event == null) return NotFound();
+
             return View(@event);
         }
 
@@ -73,38 +93,42 @@ namespace EventEase.Controllers
         {
             if (id == null) return NotFound();
 
-            var @event = await _context.Event.FindAsync(id);
+            var @event = await _context.Event
+                .Include(e => e.Venue)
+                .FirstOrDefaultAsync(e => e.EventID == id);
+
             if (@event == null) return NotFound();
 
-            var isBooked = await _context.Booking.AnyAsync(b => b.EventID == id);
-            if (isBooked)
+            return View(@event);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var @event = await _context.Event.FindAsync(id);
+
+            if (@event == null)
+                return NotFound();
+
+            // BLOCK if bookings exist
+            var hasBookings = await _context.Booking
+                .AnyAsync(b => b.EventID == id);
+
+            if (hasBookings)
             {
-                ModelState.AddModelError("", "Cannot delete event with existing bookings.");
-                return View("Index", await _context.Event.Include(e => e.Venue).ToListAsync());
+                TempData["ErrorMessage"] =
+                    "Cannot delete event because it has existing bookings.";
+
+                return RedirectToAction(nameof(Index));
             }
 
             _context.Event.Remove(@event);
             await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Event deleted successfully.";
+
             return RedirectToAction(nameof(Index));
-        }
-
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var @event = await _context.Event
-                .Include(e => e.Venue) // Include related venue if applicable
-                .FirstOrDefaultAsync(m => m.EventID == id);
-
-            if (@event == null)
-            {
-                return NotFound();
-            }
-
-            return View(@event);
         }
     }
 }

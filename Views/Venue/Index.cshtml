@@ -1,20 +1,36 @@
 ﻿@model IEnumerable<EventEase.Models.Venue>
 
 @{
-    ViewData["Title"] = "Venues";
+    ViewData["Title"] = "Venue List";
+}
+
+<h1>Index</h1>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
 }
 
 <div class="container mt-4">
 
-    <!-- Header --> 
+    <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold"> Venues</h2>
+        <h2 class="fw-bold">Venues</h2>
         <a asp-action="Create" class="btn btn-primary shadow-sm">
             + Add Venue
-        </a> 
+        </a>
     </div>
 
-    <!-- Venue Grid --> 
+    <!-- Venue Grid -->
     <div class="row g-4">
 
         @foreach (var item in Model)
@@ -22,27 +38,26 @@
             <div class="col-md-4">
                 <div class="card shadow-lg border-0 rounded-4 h-100">
 
-                    <!-- Image -->
-                    <img src="@item.ImageUrl" class="card-img-top rounded-top-4"
+                    <!-- Image with fallback -->
+                    <img src="@(string.IsNullOrEmpty(item.ImageUrl)
+                                                                     ? "/images/default-venue.jpg"
+                                                                     : item.ImageUrl)"
+                         class="card-img-top rounded-top-4"
                          style="height:200px; object-fit:cover;"
                          alt="Venue Image" />
 
                     <div class="card-body d-flex flex-column">
 
-                        <!-- Title -->
                         <h5 class="fw-bold">@item.VenueName</h5>
 
-                        <!-- Location -->
                         <p class="text-muted mb-1">
-                             @item.Location
+                            @item.Location
                         </p>
 
-                        <!-- Capacity -->
                         <p class="mb-3">
-                             Capacity: <strong>@item.Capacity</strong>
+                            Capacity: <strong>@item.Capacity</strong>
                         </p>
 
-                        <!-- Actions -->
                         <div class="mt-auto d-flex justify-content-between">
                             <a asp-action="Edit" asp-route-id="@item.VenueID"
                                    class="btn btn-sm btn-outline-warning">
