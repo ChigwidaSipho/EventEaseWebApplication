@@ -176,7 +176,7 @@ namespace EventEase.Controllers
             if (booking != null)
             {
                 _context.Booking.Remove(booking);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(); 
 
                 TempData["SuccessMessage"] = "Booking deleted successfully.";
             }

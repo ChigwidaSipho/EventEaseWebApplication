@@ -7,7 +7,7 @@ namespace EventEase.Models
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-        }
+        } 
 
         public DbSet<Venue> Venue { get; set; }
         public DbSet<Event> Event { get; set; }
