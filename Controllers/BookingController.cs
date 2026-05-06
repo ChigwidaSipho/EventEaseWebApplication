@@ -183,5 +183,5 @@ namespace EventEase.Controllers
              
             return RedirectToAction(nameof(Index));
         }
-    } 
+    }  
 } 
